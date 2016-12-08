@@ -27,9 +27,9 @@ if __name__ == '__main__':
     print(xs_in_deg)
     fit_in_deg = best_fit(xs_in_deg, Es, unit='deg', should_plot=False, optimise_final_terms=True)
 
-    for ((fit_terms, fit_rmsd), fit_unit) in zip([fit_in_rad, fit_in_deg], ['rad', 'deg']):
+    for ((fit_terms, fit_weighted_rmsd, fit_unweighted_rmsd), fit_unit) in zip([fit_in_rad, fit_in_deg], ['rad', 'deg']):
         print('Optimising fit in {0}'.format(fit_unit))
-        print('Original fit terms: {0} (RMSD={1})'.format(fit_terms, fit_rmsd))
+        print('Original fit terms: {0} (RMSD={1})'.format(fit_terms, fit_weighted_rmsd))
         print('Optimised fit terms: {0} (RMSD={1})\n'.format(*optimise_fourrier_terms(fit_terms, xs_in_rad, Es)))
 
     print(fit_in_rad)

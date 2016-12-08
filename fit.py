@@ -3,7 +3,7 @@ from numpy import vectorize, cos as np_cos, sin as np_sin, vectorize, fft, pi, l
 seterr(all='raise')
 from scipy.integrate import trapz, simps
 from scipy.optimize import curve_fit, minimize
-from typing import Any, Union, Callable, List, Optional, Tuple
+from typing import Any, Union, Callable, List, Optional, Tuple, Iterable
 from functools import reduce
 from logging import Logger
 
@@ -53,7 +53,7 @@ def bn(xs: Vector, ys: Vector, m: int, a0: float) -> float:
 
     return fourrier_coeff(np_sin, xs, ys - a0, m)
 
-class Term(object):
+class Term(Iterable):
     def __init__(self, n: int, k_n: float, term_type: str) -> None:
         self.n, self.k_n, self.term_type = n, k_n, term_type
 
@@ -257,6 +257,7 @@ def best_fit(xs: Any, Es: Any, unit: str = 'rad', should_plot: bool = False, opt
         return (
             [],
             float('inf'),
+            float('inf'),
         )
     else:
         max_keep_n = min(MAX_NUM_TERMS, len(xs))
@@ -280,7 +281,7 @@ def best_fit(xs: Any, Es: Any, unit: str = 'rad', should_plot: bool = False, opt
 
         if debug:
             if log:
-                log.error(sorted_all_fits)
+                log.error(str(sorted_all_fits))
 
         best_fit_terms, best_fit_rmsd, best_fit_penalty = sorted_all_fits[0]
 
@@ -297,7 +298,7 @@ def best_fit(xs: Any, Es: Any, unit: str = 'rad', should_plot: bool = False, opt
                 assert rmsd_to_compare <= best_fit_rmsd, [rmsd_to_compare, best_fit_rmsd]
             except AssertionError as e:
                 if log:
-                    log.error(e)
+                    log.error(str(e))
                 else:
                     raise
         else:
