@@ -18,7 +18,7 @@ convolution_v = vectorize(convolution)
 def evaluate(model: Callable[[Any], float], points: List[Any]) -> List[float]:
     return [model(point) for point in points]
 
-DEFAULT_INTEGRATION_METHOD = simps
+DEFAULT_INTEGRATION_METHOD = trapz
 
 def vector_if_necessary(x: Union[List, Tuple, Vector]):
     if isinstance(x, Vector):
