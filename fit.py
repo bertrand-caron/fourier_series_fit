@@ -174,7 +174,7 @@ def penalty_function_for(base_scale: float, penalty_power_exponent: float) -> Pe
 
 DEFAULT_PENALTY_FUNCTION = penalty_function_for(1.0, 1.5)
 
-def rmsd_score_with_n_terms(xs: Union[List, Vector], Es: Union[List, Vector], keep_n: int = 1, should_plot: bool = False, max_frequency: Optional[int] = None, weights: Optional[Vector] = None, penalty_function: Penalty_Function = DEFAULT_PENALTY_FUNCTION) -> Tuple[List[Term], float, float]:
+def rmsd_score_with_n_terms(xs: Union[List, Vector], Es: Union[List, Vector], keep_n: int = 1, should_plot: bool = False, max_frequency: Optional[int] = None, weights: Optional[Vector] = None, penalty_function: Penalty_Function = DEFAULT_PENALTY_FUNCTION, log: Optional[Logger] = None) -> Tuple[List[Term], float, float]:
     if isinstance(Es, Vector):
         Es_np = Es
     else:
@@ -273,6 +273,7 @@ def best_fit(xs: Any, Es: Any, unit: str = 'rad', should_plot: bool = False, opt
                     should_plot=should_plot,
                     weights=rmsd_weights,
                     penalty_function=penalty_function,
+                    log=log,
                 )
                 for keep_n in range(0, max_keep_n)
             ],
