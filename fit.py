@@ -40,7 +40,7 @@ def a0(xs: Vector, ys: Vector, integration_method=DEFAULT_INTEGRATION_METHOD) ->
     else:
         return integration_method(
             ys,
-            xs,
+            x=xs,
         ) / (xs[-1] - xs[0])
 
 def an(xs: Vector, ys: Vector, m: int, a0: float) -> float:
