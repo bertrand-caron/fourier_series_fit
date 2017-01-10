@@ -39,7 +39,7 @@ def interpolating_fct(xs: Vector, Es: Vector) -> Callable[[Vector], Vector]:
 
     return (lambda xs_vector: splev(xs_vector, tck))
 
-def normalised_anti_gradient(xs: Vector, Es: Vector, scale: float = 1.0, use_interpolated_gradient: bool = False, max_abs_gradient: float = 100.) -> Vector:
+def normalised_anti_gradient(xs: Vector, Es: Vector, scale: float = 1.0, use_interpolated_gradient: bool = False, max_abs_gradient: Optional[float] = None) -> Vector:
     assert all([isinstance(an_array, Vector) for an_array in [xs, Es]])
 
     if use_interpolated_gradient:
@@ -64,7 +64,8 @@ def normalised_anti_gradient(xs: Vector, Es: Vector, scale: float = 1.0, use_int
     except:
         raise Exception([d_xs, d_ys])
 
-    assert all([d < max_abs_gradient for d in absolute_gradient]), [absolute_gradient]
+    if max_abs_gradient is not None:
+        assert all([d < max_abs_gradient for d in absolute_gradient]), [absolute_gradient]
 
     return (
         xs,
