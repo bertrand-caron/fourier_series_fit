@@ -67,7 +67,14 @@ def normalised_anti_gradient(xs: Vector, Es: Vector, scale: float = 1.0, use_int
     if max_abs_gradient is not None:
         assert all([d < max_abs_gradient for d in absolute_gradient]), [absolute_gradient]
 
+    anti_gradient = (1.0 - (absolute_gradient / np_max(absolute_gradient)))
+
+    if sum(anti_gradient) == 0.:
+        anti_gradient = vector([1. for x in anti_gradient])
+
+    assert sum(anti_gradient) != 0., anti_gradient
+
     return (
         xs,
-        scale * (1.0 - (absolute_gradient / np_max(absolute_gradient))),
+        scale * anti_gradient,
     )
