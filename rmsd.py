@@ -8,7 +8,7 @@ def d2(z1: Any, z2:Any) -> Any:
 
 d2_v = vectorize(d2)
 
-def vector_rmsd(ys1: Vector, ys2: Vector, weights: Optional[Vector] = None) -> float:
+def vector_rmsd(ys1: Vector, ys2: Vector, weights: Optional[Vector] = None, should_align: bool = True) -> float:
     try:
         assert len(ys1) == len(ys2), [ys1, ys2]
     except TypeError:
@@ -17,11 +17,14 @@ def vector_rmsd(ys1: Vector, ys2: Vector, weights: Optional[Vector] = None) -> f
 
     Es_1, Es_2 = [vector(data_set) for data_set in [ys1, ys2]]
 
+    def potentially_aligned(Es: Vector) -> Vector:
+        return Es - (np_average(Es) if should_align else 0.)
+
     return sqrt_np(
         np_average(
             d2(
-                Es_1,
-                Es_2,
+                potentially_aligned(Es_1),
+                potentially_aligned(Es_2),
             ),
             weights=weights,
         )
