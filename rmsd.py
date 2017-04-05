@@ -1,7 +1,7 @@
 from numpy import vectorize, sum as sum_np, sqrt as sqrt_np, average as np_average
 from typing import Any, Optional
 
-from fourrier_series_fit.types_helpers import vector, Vector
+from fourier_series_fit.types_helpers import vector, Vector
 
 def d2(z1: Any, z2:Any) -> Any:
     return (z2 - z1)**2

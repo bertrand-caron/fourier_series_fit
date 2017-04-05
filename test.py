@@ -1,10 +1,10 @@
 from numpy import cos as np_cos, rad2deg, pi, random, sin as np_sin, linspace, isclose # pylint: disable=no-name-in-module
 from scipy.integrate import simps
 
-from fourrier_series_fit.fit import best_fit, plot, optimise_fourrier_terms, a0, an, bn, convolution_v, evaluate, fourrier_series_fct
-from fourrier_series_fit.types_helpers import vector, Vector
+from fourier_series_fit.fit import best_fit, plot, optimise_fourier_terms, a0, an, bn, convolution_v, evaluate, fourier_series_fct
+from fourier_series_fit.types_helpers import vector, Vector
 
-def test_fourrier_coeffs(xs: Vector, Es: Vector) -> None:
+def test_fourier_coeffs(xs: Vector, Es: Vector) -> None:
     assert isclose(
         simps(
             convolution_v(np_sin(2 * xs), 10 * np_cos(xs) + np_sin(1 * xs)),
@@ -30,7 +30,7 @@ if __name__ == '__main__':
     for ((fit_terms, fit_weighted_rmsd, fit_unweighted_rmsd), fit_unit) in zip([fit_in_rad, fit_in_deg], ['rad', 'deg']):
         print('Optimising fit in {0}'.format(fit_unit))
         print('Original fit terms: {0} (RMSD={1})'.format(fit_terms, fit_weighted_rmsd))
-        print('Optimised fit terms: {0} (RMSD={1})\n'.format(*optimise_fourrier_terms(fit_terms, xs_in_rad, Es)))
+        print('Optimised fit terms: {0} (RMSD={1})\n'.format(*optimise_fourier_terms(fit_terms, xs_in_rad, Es)))
 
     print(fit_in_rad)
     print(fit_in_deg)
@@ -45,7 +45,7 @@ if __name__ == '__main__':
         plt.plot(
             xs_in_deg,
             evaluate(
-                fourrier_series_fct(
+                fourier_series_fct(
                     fit_in_deg[0],
                 ),
                 xs_in_deg,

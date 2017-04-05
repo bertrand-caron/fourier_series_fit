@@ -7,8 +7,8 @@ from typing import Any, Union, Callable, List, Optional, Tuple, Iterable
 from functools import reduce
 from logging import Logger
 
-from fourrier_series_fit.types_helpers import vector, Vector
-from fourrier_series_fit.rmsd import vector_rmsd
+from fourier_series_fit.types_helpers import vector, Vector
+from fourier_series_fit.rmsd import vector_rmsd
 
 def convolution(z1: Any, z2: Any) -> Any:
     return z1 * z2
@@ -26,7 +26,7 @@ def vector_if_necessary(x: Union[List, Tuple, Vector]):
     else:
         return vector(x)
 
-def fourrier_coeff(trigonometric_function, xs, ys, m, integration_method=DEFAULT_INTEGRATION_METHOD):
+def fourier_coeff(trigonometric_function, xs, ys, m, integration_method=DEFAULT_INTEGRATION_METHOD):
     coeff = integration_method(
         convolution_v(trigonometric_function(m * xs), ys),
         xs,
@@ -46,12 +46,12 @@ def a0(xs: Vector, ys: Vector, integration_method=DEFAULT_INTEGRATION_METHOD) ->
 def an(xs: Vector, ys: Vector, m: int, a0: float) -> float:
     assert m >= 1, m
 
-    return fourrier_coeff(np_cos, xs, ys - a0, m)
+    return fourier_coeff(np_cos, xs, ys - a0, m)
 
 def bn(xs: Vector, ys: Vector, m: int, a0: float) -> float:
     assert m >= 1, m
 
-    return fourrier_coeff(np_sin, xs, ys - a0, m)
+    return fourier_coeff(np_sin, xs, ys - a0, m)
 
 class Term(Iterable):
     def __init__(self, n: int, k_n: float, term_type: str) -> None:
@@ -84,7 +84,7 @@ TERM_FCT = {
     'cst': cst,
 }
 
-def fourrier_series_fct(terms: List[Term]) -> Callable[[float], float]:
+def fourier_series_fct(terms: List[Term]) -> Callable[[float], float]:
     if len(terms) == 0:
         return lambda x: 0.0 * cst(x)
     else:
@@ -96,7 +96,7 @@ def fourrier_series_fct(terms: List[Term]) -> Callable[[float], float]:
             ],
         )
 
-def optimise_fourrier_terms(terms: List[Term], xs: Vector, Es: Vector, rmsd_weights: Optional[Vector] = None) -> Tuple[List[Term], float, float]:
+def optimise_fourier_terms(terms: List[Term], xs: Vector, Es: Vector, rmsd_weights: Optional[Vector] = None) -> Tuple[List[Term], float, float]:
     assert all([isinstance(a, Vector) for a in [xs, Es]]), [type(a) for a in [xs, Es] if not isinstance(a, Vector)]
 
     max_abs_k = 2.0 * np_max(np_abs([term.k_n for term in terms]))
@@ -154,7 +154,7 @@ def optimise_fourrier_terms(terms: List[Term], xs: Vector, Es: Vector, rmsd_weig
 
 MAX_FREQUENCY = 6
 
-def get_fourrier_terms(xs: Vector, Es: Vector, Ns: List[int]) -> List[Term]:
+def get_fourier_terms(xs: Vector, Es: Vector, Ns: List[int]) -> List[Term]:
     assert all([isinstance(a, Vector) for a in [xs, Es]]), [type(a) for a in [xs, Es] if not isinstance(a, Vector)]
 
     A0 = Term(0, a0(xs, Es), 'cst')
@@ -220,18 +220,18 @@ def rmsd_score_with_n_terms(xs: Union[List, Vector], Es: Union[List, Vector], ke
 
     assert len(kept_terms) == keep_n + 1, kept_terms # We always keep A0
 
-    fourrier_series = fourrier_series_fct(
+    fourier_series = fourier_series_fct(
         kept_terms,
     )
 
     if should_plot:
-        plot(xs, Es, fourrier_series)
+        plot(xs, Es, fourier_series)
 
     return (
         kept_terms,
         vector_rmsd(
             Es_np,
-            vector(evaluate(fourrier_series, xs)),
+            vector(evaluate(fourier_series, xs)),
             weights=weights,
         ),
         penalty_function(kept_terms),
@@ -287,7 +287,7 @@ def best_fit(xs: Any, Es: Any, unit: str = 'rad', should_plot: bool = False, opt
         best_fit_terms, best_fit_rmsd, best_fit_penalty = sorted_all_fits[0]
 
         if optimise_final_terms:
-            optimised_best_fit_terms, optimised_best_fit_weighted_rmsd, optimised_best_fit_unweighted_rmsd = optimise_fourrier_terms(
+            optimised_best_fit_terms, optimised_best_fit_weighted_rmsd, optimised_best_fit_unweighted_rmsd = optimise_fourier_terms(
                 best_fit_terms,
                 vector_if_necessary(xs_in_rad),
                 vector_if_necessary(Es),

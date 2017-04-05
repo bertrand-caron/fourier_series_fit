@@ -2,7 +2,7 @@ from scipy.interpolate import interp1d, splrep, splev
 from numpy import isnan, max as np_max, gradient, abs as np_abs, concatenate, linspace
 from typing import Tuple, List, Any, Callable, Optional, Union
 
-from fourrier_series_fit.types_helpers import Vector, vector
+from fourier_series_fit.types_helpers import Vector, vector
 
 def flatten(xs: Union[Vector, List[Any]]) -> Vector:
     return vector([x[0] for x in xs])
