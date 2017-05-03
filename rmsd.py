@@ -1,4 +1,4 @@
-from numpy import vectorize, sum as sum_np, sqrt as sqrt_np, average as np_average
+from numpy import vectorize, sum as sum_np, sqrt as sqrt_np, average as np_average # type: ignore
 from typing import Any, Optional
 
 from fourier_series_fit.types_helpers import vector, Vector

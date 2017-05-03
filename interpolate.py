@@ -1,5 +1,5 @@
-from scipy.interpolate import interp1d, splrep, splev
-from numpy import isnan, max as np_max, gradient, abs as np_abs, concatenate, linspace
+from scipy.interpolate import interp1d, splrep, splev # type: ignore
+from numpy import isnan, max as np_max, gradient, abs as np_abs, concatenate, linspace # type: ignore
 from typing import Tuple, List, Any, Callable, Optional, Union
 
 from fourier_series_fit.types_helpers import Vector, vector
@@ -34,7 +34,7 @@ def cyclise(xs: Vector, Es: Vector, x_period: float = 360., flatten_xs_array: bo
         raise Exception([flat_xs, Es, x_period])
 
 def interpolating_fct(xs: Vector, Es: Vector) -> Callable[[Vector], Vector]:
-    tck = splrep(xs, Es, k=3)
+    tck = splrep(xs, Es, k=min(3, len(xs) - 1))
     assert not any([isnan(x) for x in tck[1]]), [xs, Es]
 
     return (lambda xs_vector: splev(xs_vector, tck))

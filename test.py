@@ -1,5 +1,5 @@
-from numpy import cos as np_cos, rad2deg, pi, random, sin as np_sin, linspace, isclose # pylint: disable=no-name-in-module
-from scipy.integrate import simps
+from numpy import cos as np_cos, rad2deg, pi, random, sin as np_sin, linspace, isclose # type: ignore
+from scipy.integrate import simps # type: ignore
 
 from fourier_series_fit.fit import best_fit, plot, optimise_fourier_terms, a0, an, bn, convolution_v, evaluate, fourier_series_fct
 from fourier_series_fit.types_helpers import vector, Vector
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     print(fit_in_deg)
 
     if True:
-        import matplotlib.pyplot as plt
+        import matplotlib.pyplot as plt #type: ignore
 
         plt.plot(
             xs_in_deg,

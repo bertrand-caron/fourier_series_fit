@@ -1,8 +1,8 @@
 from math import cos, sin
-from numpy import vectorize, cos as np_cos, sin as np_sin, vectorize, fft, pi, linspace, rad2deg, radians, random, isclose, inf, seterr, isinf, max as np_max, abs as np_abs, float64 as np_float # pylint: disable=no-name-in-module
+from numpy import vectorize, cos as np_cos, sin as np_sin, vectorize, fft, pi, linspace, rad2deg, radians, random, isclose, inf, seterr, isinf, max as np_max, abs as np_abs, float64 as np_float # type: ignore
 seterr(all='raise')
-from scipy.integrate import trapz, simps
-from scipy.optimize import curve_fit, minimize
+from scipy.integrate import trapz, simps #type: ignore
+from scipy.optimize import curve_fit, minimize # type: ignore
 from typing import Any, Union, Callable, List, Optional, Tuple, Iterable
 from functools import reduce
 from logging import Logger
@@ -314,7 +314,7 @@ def best_fit(xs: Any, Es: Any, unit: str = 'rad', should_plot: bool = False, opt
 NUMBER_POINTS_FIT = 1000
 
 def plot(xs: Vector, Es: Vector, fitted_function: Any) -> None:
-    import matplotlib.pyplot as plt
+    import matplotlib.pyplot as plt # type: ignore
 
     fine_xs = linspace(xs[0], xs[-1], NUMBER_POINTS_FIT)
 
