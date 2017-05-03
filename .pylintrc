@@ -1,0 +1,4 @@
+[TYPECHECK]
+
+ignored-classes = numpy
+ignored-modules = numpy
