@@ -99,7 +99,7 @@ def fourier_series_fct(terms: List[Term]) -> Callable[[float], float]:
 def optimise_fourier_terms(terms: List[Term], xs: Vector, Es: Vector, rmsd_weights: Optional[Vector] = None) -> Tuple[List[Term], float, float]:
     assert all([isinstance(a, Vector) for a in [xs, Es]]), [type(a) for a in [xs, Es] if not isinstance(a, Vector)]
 
-    max_abs_k = 2.0 * np_max(np_abs([term.k_n for term in terms]))
+    max_abs_k = 2.0 * (np_max(np_abs([term.k_n for term in terms])) + 1.0)
 
     def function_to_optimise(x: Vector, *K: List[float]) -> Vector:
         try:
