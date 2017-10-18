@@ -1,26 +1,3 @@
-# Fourier Series Fit
-
-[![DOI](https://zenodo.org/badge/75901428.svg)](https://zenodo.org/badge/latestdoi/75901428)
-
-## Description
-
-* `fourier_series_fit` implements the Fourier series fitting of periodic scalar functions using a series of trigonometric functions.
-
-## Usage
-
-* `fit.best_fit()` implements the main fitting function.
-Given a series of 2D, scalar data points `(xs, Fs)` and a penalty function `p`,
-`fit.best_fit(xs, Fs, penalty_function=p)` returns a list of terms
-as well as a measure of the goodness of fit (weighted and unweight root mean square deviation).
-The list of terms can be used to crate an interpolation function using `fourier_series_fct(list_of_terms)` used to evaluate the fitting function at any point.
-
-## Example
-
-### Trignonometric function
-
-Cf `example.py`:
-
-```
 from numpy import linspace, pi, cos, random
 from fit import best_fit, fourier_series_fct, LINEAR_PENALTY_FUNCTION
 
@@ -51,10 +28,3 @@ p.show()
 # Re-run with debugging on to see the effect of the penalty function
 from sys import stderr
 fit_terms, weighted_rmsd, unweighted_rmsd = best_fit(xs, Fs, penalty_function=LINEAR_PENALTY_FUNCTION, debug=stderr)
-```
-
-![Example Trigonometric](https://raw.githubusercontent.com/bertrand-caron/fourier_series_fit/master/figures/example_trigonometric.png)
-
-### Polynomial function
-
-![Example Polynomial](https://raw.githubusercontent.com/bertrand-caron/fourier_series_fit/master/figures/example_polynomial.png)

@@ -5,7 +5,7 @@ from scipy.integrate import trapz, simps #type: ignore
 from scipy.optimize import curve_fit, minimize # type: ignore
 from typing import Any, Union, Callable, List, Optional, Tuple, Iterable
 from functools import reduce
-from logging import Logger
+from operator import itemgetter
 
 from fourier_series_fit.types_helpers import vector, Vector
 from fourier_series_fit.rmsd import vector_rmsd
@@ -173,8 +173,19 @@ def penalty_function_for(base_scale: float, penalty_power_exponent: float) -> Pe
     return (lambda fit_terms: base_scale * len([1 for fit_term in fit_terms if fit_term.term_type != 'cst']) ** penalty_power_exponent)
 
 DEFAULT_PENALTY_FUNCTION = penalty_function_for(1.0, 1.5)
+LINEAR_PENALTY_FUNCTION = penalty_function_for(1.0, 1.0)
+QUADRATIC_PENALTY_FUNCTION = penalty_function_for(1.0, 2.0)
 
-def rmsd_score_with_n_terms(xs: Union[List, Vector], Es: Union[List, Vector], keep_n: int = 1, should_plot: bool = False, max_frequency: Optional[int] = None, weights: Optional[Vector] = None, penalty_function: Penalty_Function = DEFAULT_PENALTY_FUNCTION, log: Optional[Logger] = None) -> Tuple[List[Term], float, float]:
+def rmsd_score_with_n_terms(
+    xs: Union[List, Vector],
+    Es: Union[List, Vector],
+    keep_n: int = 1,
+    should_plot: bool = False,
+    max_frequency: Optional[int] = None,
+    weights: Optional[Vector] = None,
+    penalty_function: Penalty_Function = DEFAULT_PENALTY_FUNCTION,
+    debug: Optional[Any] = None,
+) -> Tuple[List[Term], float, float]:
     if isinstance(Es, Vector):
         Es_np = Es
     else:
@@ -245,7 +256,18 @@ def in_radians(list_of_terms: List[Term]) -> List[Term]:
 
 MAX_NUM_TERMS = 6
 
-def best_fit(xs: Any, Es: Any, unit: str = 'rad', should_plot: bool = False, optimise_final_terms: bool = True, debug: bool = False, rmsd_weights: Optional[Vector] = None, penalty_function: Penalty_Function = DEFAULT_PENALTY_FUNCTION, log: Optional[Logger] = None) -> Tuple[List[Term], float, float]:
+WEIGHTED_RMSD, UNWEIGHTED_RMSD = float, float
+
+def best_fit(
+    xs: Any,
+    Es: Any,
+    unit: str = 'rad',
+    should_plot: bool = False,
+    optimise_final_terms: bool = True,
+    debug: Optional[Any] = None,
+    rmsd_weights: Optional[Vector] = None,
+    penalty_function: Penalty_Function = DEFAULT_PENALTY_FUNCTION,
+) -> Tuple[List[Term], WEIGHTED_RMSD, UNWEIGHTED_RMSD]:
     assert unit in ['rad', 'deg'], unit
 
     assert not isinf(Es).any(), Es
@@ -264,6 +286,8 @@ def best_fit(xs: Any, Es: Any, unit: str = 'rad', should_plot: bool = False, opt
 
         xs_in_rad = (xs if unit == 'rad' else radians(xs)) # pylint: disable=no-member
 
+        get_weighted_rmsd, get_penalty = itemgetter(1), itemgetter(2)
+
         sorted_all_fits = sorted(
             [
                 rmsd_score_with_n_terms(
@@ -273,16 +297,15 @@ def best_fit(xs: Any, Es: Any, unit: str = 'rad', should_plot: bool = False, opt
                     should_plot=should_plot,
                     weights=rmsd_weights,
                     penalty_function=penalty_function,
-                    log=log,
+                    debug=debug,
                 )
                 for keep_n in range(0, max_keep_n)
             ],
-            key=lambda x: x[1] + x[2],
+            key=lambda x: get_weighted_rmsd(x) + get_penalty(x)
         )
 
-        if debug:
-            if log:
-                log.error(str(sorted_all_fits))
+        if debug is not None:
+            debug.write('\n'.join(map(str, [(terms, rmsd, penalty, rmsd + penalty) for (terms, rmsd, penalty) in sorted_all_fits])) + '\n')
 
         best_fit_terms, best_fit_rmsd, best_fit_penalty = sorted_all_fits[0]
 
@@ -298,8 +321,8 @@ def best_fit(xs: Any, Es: Any, unit: str = 'rad', should_plot: bool = False, opt
             try:
                 assert rmsd_to_compare <= best_fit_rmsd, [rmsd_to_compare, best_fit_rmsd]
             except AssertionError as e:
-                if log:
-                    log.error(str(e))
+                if debug is not None:
+                    debug.write(str(e))
                 else:
                     raise
         else:
