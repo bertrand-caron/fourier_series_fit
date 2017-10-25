@@ -3,38 +3,41 @@ from numpy import vectorize, cos as np_cos, sin as np_sin, vectorize, fft, pi, l
 seterr(all='raise')
 from scipy.integrate import trapz, simps #type: ignore
 from scipy.optimize import curve_fit, minimize # type: ignore
-from typing import Any, Union, Callable, List, Optional, Tuple, Iterable
+from typing import Any, Union, Callable, List, Optional, Tuple, Iterable, Sequence
 from functools import reduce
 from operator import itemgetter
 
 from fourier_series_fit.types_helpers import vector, Vector
 from fourier_series_fit.rmsd import vector_rmsd
 
-def convolution(z1: Any, z2: Any) -> Any:
+def convolution(z1: float, z2: float) -> float:
     return z1 * z2
 
 convolution_v = vectorize(convolution)
 
-def evaluate(model: Callable[[Any], float], points: List[Any]) -> List[float]:
+def evaluate(model: Callable[[Any], float], points: Sequence[Any]) -> List[float]:
     return [model(point) for point in points]
+
+Integration_Method = Callable[[Vector, Vector], float]
 
 DEFAULT_INTEGRATION_METHOD = trapz
 
-def vector_if_necessary(x: Union[List, Tuple, Vector]):
+def vector_if_necessary(x: Union[List, Tuple, Vector]) -> Vector:
     if isinstance(x, Vector):
         return x
     else:
         return vector(x)
 
-def fourier_coeff(trigonometric_function, xs, ys, m, integration_method=DEFAULT_INTEGRATION_METHOD):
+def fourier_coeff(trigonometric_function: Callable[[float], float], xs: Vector, ys: Vector, m: int, integration_method: Integration_Method = DEFAULT_INTEGRATION_METHOD) -> float:
     coeff = integration_method(
         convolution_v(trigonometric_function(m * xs), ys),
         xs,
     ) / pi
     return coeff
 
-def a0(xs: Vector, ys: Vector, integration_method=DEFAULT_INTEGRATION_METHOD) -> float:
+def a0(xs: Vector, ys: Vector, integration_method: Integration_Method = DEFAULT_INTEGRATION_METHOD) -> float:
     assert len(xs) == len(ys), (xs, ys)
+
     if len(ys) == 1:
         return ys[0]
     else:
@@ -57,7 +60,7 @@ class Term(Iterable):
     def __init__(self, n: int, k_n: float, term_type: str) -> None:
         self.n, self.k_n, self.term_type = n, k_n, term_type
 
-    def __iter__(self) -> Any:
+    def __iter__(self) -> Tuple[int, float, str]:
         return iter([self.n, self.k_n, self.term_type])
 
     def __str__(self) -> str:
@@ -259,8 +262,8 @@ MAX_NUM_TERMS = 6
 WEIGHTED_RMSD, UNWEIGHTED_RMSD = float, float
 
 def best_fit(
-    xs: Any,
-    Es: Any,
+    xs: Sequence[float],
+    Es: Sequence[float],
     unit: str = 'rad',
     should_plot: bool = False,
     optimise_final_terms: bool = True,
@@ -270,10 +273,12 @@ def best_fit(
 ) -> Tuple[List[Term], WEIGHTED_RMSD, UNWEIGHTED_RMSD]:
     assert unit in ['rad', 'deg'], unit
 
-    assert not isinf(Es).any(), Es
+    # Type casting to numpy arrays (vector)
+    xs, Es = map(vector, (xs, Es))
+    if rmsd_weights is not None:
+        rmsd_weights = vector(rmsd_weights)
 
-    #for an_array in (xs, Es):
-    #    assert type(an_array) in [list, tuple] and all([isinstance(x, float) for x in an_array]), an_array
+    assert not isinf(Es).any(), Es
 
     if len(xs) == 0:
         return (
@@ -324,9 +329,16 @@ def best_fit(
                 if debug is not None:
                     debug.write(str(e))
                 else:
-                    raise
+                    optimised_best_fit_terms = best_fit_terms
+                    optimised_best_fit_weighted_rmsd, optimised_best_fit_unweighted_rmsd = map(
+                        lambda weights: vector_rmsd(
+                            Es,
+                            fourier_series_fct(best_fit_terms)(xs),
+                        ),
+                        (rmsd_weights, None),
+                    )
         else:
-            raise Exception('Not implemented.')
+            pass
 
         return (
             optimised_best_fit_terms if unit == 'rad' else in_degrees(optimised_best_fit_terms),
