@@ -1,21 +1,24 @@
+from sys import argv
 from matplotlib import rc
-rc('font',**{'family':'sans-serif','sans-serif':['CMU Serif']})
-
+rc('text', usetex=True)
+import pylab as p
 from numpy import linspace, pi, cos, random
 
-# Get 40 points linearly distributed between -pi and pi
 xs = linspace(-pi, pi, 500)
 
 N_1, N_2 = 2, 3
 
-import pylab as p
+PLOT_TO_FILE = True
+
+fig, axis = p.subplots(figsize=(8, 6))
+
 for N in [N_1, N_2]:
-    p.plot(
+    axis.plot(
         xs,
         cos(N * xs),
         label='$\cos({0}x)$'.format('' if N == 1 else N)
     )
-p.fill_between(
+axis.fill_between(
     xs,
     0,
     cos(N_1 * xs) *  cos(N_2 * xs),
@@ -25,11 +28,15 @@ p.fill_between(
             for N in [N_1, N_2]
         ]
     ),
-    color='#FED8B1',
+    color='#DCDCDC',
     edgecolor='black',
     facecolor='black',
 )
-p.xlabel('$\phi$')
-p.xlim([-pi, pi])
-p.legend()
-p.show()
+#axis.plot(xs, cos(N_1 * xs) *  cos(N_2 * xs), color='#808080')
+axis.set_xlabel('$\phi$ (rad)')
+axis.set_xlim([-pi, pi])
+axis.legend()
+if PLOT_TO_FILE:
+    p.savefig(argv[0].replace('.py', '.pdf'))
+else:
+    p.show()
