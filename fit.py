@@ -257,7 +257,7 @@ def in_degrees(list_of_terms: List[Term]) -> List[Term]:
 def in_radians(list_of_terms: List[Term]) -> List[Term]:
     return [Term(n / (2 * pi / 360.), k_n, term_type) for (n, k_n, term_type) in list_of_terms]
 
-MAX_NUM_TERMS = 6
+MAX_NUM_TERMS = 12
 
 WEIGHTED_RMSD, UNWEIGHTED_RMSD = float, float
 
@@ -287,7 +287,7 @@ def best_fit(
             float('inf'),
         )
     else:
-        max_keep_n = min(MAX_NUM_TERMS, len(xs))
+        max_keep_n = min(MAX_NUM_TERMS, len(xs) // 2)
 
         xs_in_rad = (xs if unit == 'rad' else radians(xs)) # pylint: disable=no-member
 
